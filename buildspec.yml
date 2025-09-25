@@ -3,17 +3,21 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Logging in to Docker Hub..."
-      - echo $DOCKER_HUB_PASSWORD | docker login --username $DOCKER_HUB_USERNAME --password-stdin
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - echo "Creating ECR repository if it doesn't exist..."
+      - aws ecr describe-repositories --repository-names coqui-tts-serverless --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name coqui-tts-serverless --region $AWS_DEFAULT_REGION
   build:
     commands:
       - echo "Building the Docker image..."
-      - docker build -t dzakwanalifi/coqui-tts-serverless:latest .
+      - docker build -t coqui-tts-serverless .
+      - docker tag coqui-tts-serverless:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest
   post_build:
     commands:
-      - echo "Pushing the Docker image to Docker Hub..."
-      - docker push dzakwanalifi/coqui-tts-serverless:latest
-      - echo "Docker image pushed successfully to Docker Hub!"
+      - echo "Pushing the Docker image..."
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest
+      - echo "Docker image pushed successfully to ECR!"
+      - echo "ECR URI: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest"
 
 artifacts:
   files:
