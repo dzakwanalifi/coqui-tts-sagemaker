@@ -5,22 +5,22 @@ import subprocess
 import sys
 
 # SageMaker serving script
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Change to the code directory
     os.chdir('/opt/program')
 
     # Start Gunicorn with our Flask app
     cmd = [
-        "gunicorn",
-        "--timeout", "600",
-        "-b", "0.0.0.0:8080",
-        "--workers", "1",
-        "--threads", "1",
-        "inference:app"
+        'gunicorn',
+        '--timeout', '600',
+        '-b', '0.0.0.0:8080',
+        '--workers', '1',
+        '--threads', '1',
+        'inference:app'
     ]
 
-    print("Starting Gunicorn server...")
-    print(f"Command: {' '.join(cmd)}")
+    print('Starting Gunicorn server...')
+    print(f'Command: {\" \".join(cmd)}')
 
     # Execute the command
     result = subprocess.run(cmd)
