@@ -3,22 +3,14 @@ version: 0.2
 phases:
   pre_build:
     commands:
-      - echo "Setting up environment variables..."
-      - export ACCOUNT_ID=313984758210
-      - export REGION=us-east-1
-      - export REPO_NAME=coqui-tts-serverless
-      - export ECR_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME
-      - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
-      - echo "Creating ECR repository..."
-      - aws ecr describe-repositories --repository-names $REPO_NAME --region $REGION || aws ecr create-repository --repository-name $REPO_NAME --region $REGION
+      - echo "Login to ECR"
+      - aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 313984758210.dkr.ecr.us-east-1.amazonaws.com
   build:
     commands:
-      - echo "Building Docker image..."
+      - echo "Build Docker"
       - docker build -t coqui-tts-serverless .
       - docker tag coqui-tts-serverless:latest 313984758210.dkr.ecr.us-east-1.amazonaws.com/coqui-tts-serverless:latest
   post_build:
     commands:
-      - echo "Pushing Docker image..."
+      - echo "Push to ECR"
       - docker push 313984758210.dkr.ecr.us-east-1.amazonaws.com/coqui-tts-serverless:latest
-      - echo "Success! ECR URI: 313984758210.dkr.ecr.us-east-1.amazonaws.com/coqui-tts-serverless:latest"
