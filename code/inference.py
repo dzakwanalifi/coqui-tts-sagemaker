@@ -28,16 +28,17 @@ def load_model():
     global tts_model
     if tts_model is None:
         print("Model belum di-load, memulai proses loading...")
-        
+
         device = "cuda" if torch.cuda.is_available() else "cpu"
         print(f"Menggunakan device: {device}")
-        
-        
+
+        # Load model
         tts_model = TTS("tts_models/multilingual/multi-dataset/xtts_v2").to(device)
         print("Model Coqui TTS berhasil di-load.")
     return tts_model
 
-load_model()
+# Don't load model at startup - load on first request to speed up health checks
+print("Container started successfully - model will load on first request")
 @app.route("/ping", methods=["GET"])
 def ping():
     """Endpoint untuk health check SageMaker."""
@@ -53,18 +54,23 @@ def invocations():
         if not text_to_speak:
             return jsonify(error="JSON payload must contain 'text' field"), 400
         print(f"Menerima permintaan untuk teks: '{text_to_speak}'")
-        
+
+        # Load model on first request
+        global tts_model
+        if tts_model is None:
+            print("Loading model for first time...")
+            load_model()
+
         output_path = "/tmp/output.wav"
-        
-        
+
         tts_model.tts_to_file(
             text=text_to_speak,
             file_path=output_path,
-            speaker="Ana Florence", 
-            language="id" 
+            speaker="Ana Florence",
+            language="id"
         )
         print(f"Audio berhasil dibuat di {output_path}")
-        
+
         return send_file(output_path, mimetype="audio/wav")
     except Exception as e:
         print(f"Error saat inference: {e}")
