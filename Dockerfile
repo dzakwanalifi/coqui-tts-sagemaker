@@ -10,9 +10,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
+# Install uv for faster package installation
+RUN pip install --no-cache-dir uv
+
 # Copy requirements first for better caching
 COPY ./code/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN uv pip install --system -r requirements.txt
 
 # Copy application code
 COPY ./code/ .
