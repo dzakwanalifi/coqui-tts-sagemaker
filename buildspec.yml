@@ -19,6 +19,4 @@ phases:
       - echo "Docker image pushed successfully to ECR!"
       - echo "ECR URI: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest"
 
-artifacts:
-  files:
-    - '**/*'
+artifacts: {}
