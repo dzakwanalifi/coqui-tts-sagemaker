@@ -1,33 +1,37 @@
-# Use Python 3.10 slim image
+
 FROM python:3.10-slim
 
-# Set working directory
+
 WORKDIR /opt/program
 
-# Install system dependencies
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv for faster package installation
+
+# Install uv for blazing fast package installation
 RUN pip install --no-cache-dir uv
 
 # Copy requirements first for better caching
 COPY ./code/requirements.txt .
-RUN uv pip install --system -r requirements.txt
 
-# Copy application code
+# Use uv pip install with --index-url support
+RUN uv pip install --system --index-url https://download.pytorch.org/whl/cpu torch==2.1.0 && \
+    uv pip install --system TTS==0.22.0 Flask==3.0.0 gunicorn==21.2.0
+
+
 COPY ./code/ .
 
-# Make serve script executable
+
 RUN chmod +x serve
 
-# Create serve symlink in PATH
+
 RUN ln -s /opt/program/serve /usr/local/bin/serve
 
-# SageMaker expects the serve script to be in PATH
+
 ENV PATH="/opt/program:${PATH}"
 
-# Default command (SageMaker will override this)
+
 CMD ["serve"]
