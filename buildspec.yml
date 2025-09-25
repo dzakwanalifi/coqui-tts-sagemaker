@@ -1,5 +1,10 @@
 version: 0.2
 
+env:
+  variables:
+    AWS_DEFAULT_REGION: "us-east-1"
+    AWS_ACCOUNT_ID: "313984758210"
+
 phases:
   pre_build:
     commands:
@@ -17,6 +22,4 @@ phases:
       - echo "Pushing the Docker image..."
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest
       - echo "Docker image pushed successfully to ECR!"
-      - echo "ECR URI: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest"
-
-artifacts: {}
+      - printf "ECR URI: %s.dkr.ecr.%s.amazonaws.com/coqui-tts-serverless:latest" $AWS_ACCOUNT_ID $AWS_DEFAULT_REGION
