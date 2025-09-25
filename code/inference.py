@@ -8,9 +8,10 @@ os.environ["COQUI_TOS_AGREED"] = "1"
 # Handle PyTorch 2.6 weights_only issue for TTS models
 import torch.serialization
 try:
-    # Try to import and add safe globals for TTS config
+    # Try to import and add safe globals for TTS configs and models
     from TTS.tts.configs.xtts_config import XttsConfig
-    torch.serialization.add_safe_globals([XttsConfig])
+    from TTS.tts.models.xtts import XttsAudioConfig
+    torch.serialization.add_safe_globals([XttsConfig, XttsAudioConfig])
 except ImportError:
     # Fallback if the import fails
     pass
