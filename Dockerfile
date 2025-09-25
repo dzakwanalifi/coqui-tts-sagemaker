@@ -26,8 +26,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Salin kode aplikasi
 COPY ./code /opt/program/
 
+# Make serve script executable
+RUN chmod +x /opt/program/serve
+
 # Set env var untuk SageMaker
 ENV SAGEMAKER_PROGRAM inference.py
-
-# Jalankan Gunicorn web server saat kontainer dimulai
-CMD ["gunicorn", "--timeout", "600", "-b", "0.0.0.0:8080", "inference:app"]
