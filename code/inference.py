@@ -5,6 +5,16 @@ from flask import Flask, request, jsonify, send_file
 # Set environment variable to automatically accept Coqui TTS terms
 os.environ["COQUI_TOS_AGREED"] = "1"
 
+# Handle PyTorch 2.6 weights_only issue for TTS models
+import torch.serialization
+try:
+    # Try to import and add safe globals for TTS config
+    from TTS.tts.configs.xtts_config import XttsConfig
+    torch.serialization.add_safe_globals([XttsConfig])
+except ImportError:
+    # Fallback if the import fails
+    pass
+
 from TTS.api import TTS
 
 app = Flask(__name__)
