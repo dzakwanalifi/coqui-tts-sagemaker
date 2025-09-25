@@ -1,35 +1,30 @@
-# Gunakan base image Ubuntu yang lebih ringan untuk development
-FROM ubuntu:22.04
+# Use Python 3.10 slim image
+FROM python:3.10-slim
 
-# Set environment variables
-ENV LANG=C.UTF-8
-ENV DEBIAN_FRONTEND=noninteractive
+# Set working directory
+WORKDIR /opt/program
 
-# Install dependencies sistem (versi ringan)
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.10 \
-    python3-pip \
     ffmpeg \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Set python3.10 sebagai default
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
-
-# Salin file requirements
-COPY ./code/requirements.txt /opt/program/requirements.txt
-
-# Install library Python
-WORKDIR /opt/program
+# Copy requirements first for better caching
+COPY ./code/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Salin kode aplikasi
-COPY ./code /opt/program/
+# Copy application code
+COPY ./code/ .
 
-# Make serve script executable and add to PATH
-RUN chmod +x /opt/program/serve && \
-    ln -s /opt/program/serve /usr/local/bin/serve
+# Make serve script executable
+RUN chmod +x serve
 
-# Set env var untuk SageMaker
-ENV SAGEMAKER_PROGRAM inference.py
+# Create serve symlink in PATH
+RUN ln -s /opt/program/serve /usr/local/bin/serve
+
+# SageMaker expects the serve script to be in PATH
 ENV PATH="/opt/program:${PATH}"
+
+# Default command (SageMaker will override this)
+CMD ["serve"]
