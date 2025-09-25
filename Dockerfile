@@ -26,8 +26,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Salin kode aplikasi
 COPY ./code /opt/program/
 
-# Make serve script executable
-RUN chmod +x /opt/program/serve
+# Make serve script executable and add to PATH
+RUN chmod +x /opt/program/serve && \
+    ln -s /opt/program/serve /usr/local/bin/serve
 
 # Set env var untuk SageMaker
 ENV SAGEMAKER_PROGRAM inference.py
+ENV PATH="/opt/program:${PATH}"
