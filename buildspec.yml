@@ -22,4 +22,4 @@ phases:
       - echo "Pushing the Docker image..."
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest
       - echo "Docker image pushed successfully to ECR!"
-      - printf "ECR URI: %s.dkr.ecr.%s.amazonaws.com/coqui-tts-serverless:latest" $AWS_ACCOUNT_ID $AWS_DEFAULT_REGION
+      - echo "ECR URI: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest"
