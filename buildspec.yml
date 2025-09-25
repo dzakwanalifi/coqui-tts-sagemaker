@@ -1,25 +1,32 @@
 version: 0.2
 
-env:
-  variables:
-    AWS_DEFAULT_REGION: "us-east-1"
-    AWS_ACCOUNT_ID: "313984758210"
-
 phases:
   pre_build:
     commands:
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REGION=us-east-1
+      - REPO_NAME=coqui-tts-serverless
+      - ECR_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME
       - echo "Logging in to Amazon ECR..."
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
+      - aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
       - echo "Creating ECR repository if it doesn't exist..."
-      - aws ecr describe-repositories --repository-names coqui-tts-serverless --region $AWS_DEFAULT_REGION || aws ecr create-repository --repository-name coqui-tts-serverless --region $AWS_DEFAULT_REGION
+      - aws ecr describe-repositories --repository-names $REPO_NAME --region $REGION || aws ecr create-repository --repository-name $REPO_NAME --region $REGION
   build:
     commands:
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REGION=us-east-1
+      - REPO_NAME=coqui-tts-serverless
+      - ECR_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME
       - echo "Building the Docker image..."
-      - docker build -t coqui-tts-serverless .
-      - docker tag coqui-tts-serverless:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest
+      - docker build -t $REPO_NAME .
+      - docker tag $REPO_NAME:latest $ECR_URI:latest
   post_build:
     commands:
+      - ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+      - REGION=us-east-1
+      - REPO_NAME=coqui-tts-serverless
+      - ECR_URI=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPO_NAME
       - echo "Pushing the Docker image..."
-      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest
+      - docker push $ECR_URI:latest
       - echo "Docker image pushed successfully to ECR!"
-      - echo "ECR URI: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/coqui-tts-serverless:latest"
+      - echo "ECR URI: $ECR_URI:latest"
