@@ -20,7 +20,7 @@ if __name__ == '__main__':
     ]
 
     print('Starting Gunicorn server...')
-    print(f'Command: {\" \".join(cmd)}')
+    print('Command: ' + ' '.join(cmd))
 
     # Execute the command
     result = subprocess.run(cmd)
